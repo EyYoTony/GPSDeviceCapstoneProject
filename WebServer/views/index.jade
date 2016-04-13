@@ -1,5 +1,32 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  if points
+    #map
+    p #{ points }
+    input#limitVal(type="text")
+    button#changeLimit Submit
+    script.
+      function initMap() {
+        var myLatLng = { lat: #{ points[0].lat }, lng: #{ points[0].lng } };
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: myLatLng
+        });
+        
+        for(var i in points){
+          var marker = new google.maps.Marker({
+            position: { lat: #{ points[i].lat }, lng: #{ points[i].lng } },
+            map: map,
+            title: 'Waypoint ' + i
+          });
+        }
+      }
+    script.
+      $('#changeLimit').click(function(){
+        var limit = Integer.parseInt($('#limitVal').val());
+        location.href = "/?limit="+limit;
+      });
+    script(async, defer, src="https://maps.googleapis.com/maps/api/js?key=API_KEY_HERE&callback=initMap")
+  else
+    h1 There are no points!

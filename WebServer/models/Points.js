@@ -2,7 +2,11 @@ var mongoose = require('mongoose');
 
 
 var PointsSchema = new mongoose.Schema({
-  waypoint: {
+  lng: {
+    type: String,
+    required: true
+  },
+  lat: {
     type: String,
     required: true
   },
