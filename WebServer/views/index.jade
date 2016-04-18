@@ -1,32 +1,48 @@
 extends layout
 
 block content
-  if points
-    #map
-    p #{ points }
-    input#limitVal(type="text")
-    button#changeLimit Submit
+  style.
+    html, body, #map_canvas {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map_canvas {
+      position: relative;
+    }
+
+  if error
+    p #{ error }
+  #map_canvas
     script.
-      function initMap() {
-        var myLatLng = { lat: #{ points[0].lat }, lng: #{ points[0].lng } };
-        var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 4,
-          center: myLatLng
-        });
-        
-        for(var i in points){
-          var marker = new google.maps.Marker({
-            position: { lat: #{ points[i].lat }, lng: #{ points[i].lng } },
-            map: map,
-            title: 'Waypoint ' + i
-          });
-        }
-      }
-    script.
-      $('#changeLimit').click(function(){
-        var limit = Integer.parseInt($('#limitVal').val());
-        location.href = "/?limit="+limit;
+      var points = !{ JSON.stringify(points) };
+  script.
+    function initMap() {
+      var myLatLng = { lat: parseInt(points[points.length-1].lat), lng: parseInt(points[points.length-1].lng) };
+      var map = new google.maps.Map(document.getElementById('map_canvas'), {
+        zoom: 4,
+        center: myLatLng
       });
-    script(async, defer, src="https://maps.googleapis.com/maps/api/js?key=API_KEY_HERE&callback=initMap")
-  else
-    h1 There are no points!
+      function attachMessage(marker, secretMessage) {
+        var infowindow = new google.maps.InfoWindow({
+          content: secretMessage
+        });
+
+        marker.addListener('click', function() {
+          infowindow.open(marker.get('map'), marker);
+        });
+      }
+
+      for(var i in points){
+        console.log(points[i]);
+        var marker = new google.maps.Marker({
+          position: { lat: parseInt(points[i].lat), lng: parseInt(points[i].lng) },
+          map: map,
+          title: 'Waypoint ' + i + " with UID " + points[i].UID
+        });
+        var message = "<b>Point " + i + "</b><br>UID: " +  points[i].UID + "<br>" + "Time: " + points[i].time + "<br>"
+        attachMessage(marker, message);
+      }
+    }
+  script(async, defer, src="https://maps.googleapis.com/maps/api/js?key=#{ map_api }&callback=initMap")

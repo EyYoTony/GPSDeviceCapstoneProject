@@ -1,3 +1,4 @@
 module.exports = {
-  uri: 'mongodb://localhost/malex'
+  uri: process.env.MONGODB_URI,
+  mapsAPI: process.env.MAPS_API
 };
