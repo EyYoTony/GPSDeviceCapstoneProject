@@ -14,35 +14,38 @@ block content
 
   if error
     p #{ error }
-  #map_canvas
+  if points.length == 0
+    h1 There are not points in the Database!!
+  else
+    #map_canvas
     script.
       var points = !{ JSON.stringify(points) };
-  script.
-    function initMap() {
-      var myLatLng = { lat: parseInt(points[points.length-1].lat), lng: parseInt(points[points.length-1].lng) };
-      var map = new google.maps.Map(document.getElementById('map_canvas'), {
-        zoom: 4,
-        center: myLatLng
-      });
-      function attachMessage(marker, secretMessage) {
-        var infowindow = new google.maps.InfoWindow({
-          content: secretMessage
+    script.
+      function initMap() {
+        var myLatLng = { lat: parseFloat(points[0].lat), lng: parseFloat(points[0].lng) };
+        var map = new google.maps.Map(document.getElementById('map_canvas'), {
+          zoom: 4,
+          center: myLatLng
         });
+        function attachMessage(marker, secretMessage) {
+          var infowindow = new google.maps.InfoWindow({
+            content: secretMessage
+          });
 
-        marker.addListener('click', function() {
-          infowindow.open(marker.get('map'), marker);
-        });
-      }
+          marker.addListener('click', function() {
+            infowindow.open(marker.get('map'), marker);
+          });
+        }
 
-      for(var i in points){
-        console.log(points[i]);
-        var marker = new google.maps.Marker({
-          position: { lat: parseInt(points[i].lat), lng: parseInt(points[i].lng) },
-          map: map,
-          title: 'Waypoint ' + i + " with UID " + points[i].UID
-        });
-        var message = "<b>Point " + i + "</b><br>UID: " +  points[i].UID + "<br>" + "Time: " + points[i].time + "<br>"
-        attachMessage(marker, message);
+        for(var i in points){
+          console.log( { lat: parseFloat(points[i].lat), lng: parseFloat(points[i].lng) });
+          var marker = new google.maps.Marker({
+            position: { lat: parseFloat(points[i].lat), lng: parseFloat(points[i].lng) },
+            map: map,
+            title: 'Waypoint ' + i + " with UID " + points[i].UID
+          });
+          var message = "<b>Point " + i + "</b><br>UID: " +  points[i].UID + "<br>" + "Time: " + points[i].time + "<br>"
+          attachMessage(marker, message);
+        }
       }
-    }
-  script(async, defer, src="https://maps.googleapis.com/maps/api/js?key=#{ map_api }&callback=initMap")
+    script(async, defer, src="https://maps.googleapis.com/maps/api/js?key=#{ map_api }&callback=initMap")
